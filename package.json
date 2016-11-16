@@ -1,0 +1,14 @@
+{
+  "name": "test_docker_web_app",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "First Last <first.last@example.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "nodemon": "^1.11.0"
+  }
+}

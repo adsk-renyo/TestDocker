@@ -17,5 +17,5 @@ services:
   mongodata:
     image: ubuntu
     volumes: 
-      - /data/db
+      - ~/myData/db:/data/db
     command: echo "data container for mongodb"

@@ -1,0 +1,221 @@
+<!-- Embedded JavaScript -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <%include ./partials/headlinks%>
+        <!-- Google web fonts -->
+        <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel="stylesheet" />
+        <!-- The main CSS file -->
+        <link href="assets/css/mini_fileupload.css" rel="stylesheet" />
+    </head>
+
+    <body>
+        <%include ./partials/colladaRenderDlg%>
+        <%include ./partials/partUploadInfoDlg%>
+        <%include ./partials/header%>
+        <!-- other parts -->
+        <div class="container">
+            <div class="row row-offcanvas row-offcanvas-right">
+                <div class="col-xs-2 col-sm-2 sidebar-offcanvas" id="sidebar">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item active">Help 1</a>
+                        <a href="#" class="list-group-item">Help 2</a>
+                        <a href="#" class="list-group-item">Help 3</a>
+                        <a href="#" class="list-group-item">Help 4</a>
+                        <a href="#" class="list-group-item">Help 5</a>
+                        <a href="#" class="list-group-item">Help 6</a>
+                    </div>
+                </div><!--/.sidebar-offcanvas-->
+                <div class="col-xs-12 col-sm-10">
+                    <div class="row">
+                        <form id="upload" method="post" action="uploadModel" enctype="multipart/form-data">
+                            <div id="drop">Drop Here
+                                <a>Browse</a>
+                                <input type="file" name="upl" multiple />
+                            </div>
+                            <ul>
+                                <!-- The file uploads will be shown here -->
+                            </ul>
+                        </form>
+                    </div>
+                    <div class="row" id="partList">
+                        <% colladaParts.forEach(function(part) { %>
+                        <div class="col-xs-3 col-lg-3">
+                            <a href="#colladaRenderDlg" data-toggle="modal" class="colladaImage" width="100%" height="75%" imageid="<%= part.thumbnailFile %>" partid="<%= part.file %>" originalFileName="<%= part.originalFileName %>">
+                            </a>
+                        </div><!--/.col-xs-6.col-lg-4-->
+                        <% }); %>
+                    </div><!--/row-->
+                </div><!--/.col-xs-12.col-sm-9-->
+            </div><!--/row-->
+            <hr>
+            <%include ./partials/footer%>
+        </div><!--/.container-->
+        <%include ./partials/bodylinks%>
+
+        <%include ./partials/testCollada%>
+        <script>
+            $(document).ready(function () {
+                $(".colladaImage").each(function (i) {
+                    var imageId = $(this).attr('imageId');
+                    insertPartThumbnail($(this), imageId)
+                });
+
+                $('#colladaRenderDlg').on('show.bs.modal', function (event) {
+                    var target = $(event.relatedTarget);
+                    var partId = $(target).attr('partid');
+                    var originalFileName = $(target).attr('originalFileName')
+                    var dotPos = originalFileName.lastIndexOf('.');
+                    if (dotPos > 0)
+                        originalFileName = originalFileName.substr(0, dotPos);
+                    var modal = $(this);
+                    var body = modal.find('.modal-body')[0];
+                    var title = modal.find('.modal-title')[0];
+                    $(title).text(originalFileName);
+                    $(body).empty();
+                    ColladaRender(body, "./vault/part/" + partId, null);
+                });
+            });
+
+            var insertPartThumbnail = function (parentElement, imageId) {
+                if (imageId) {
+                    var newItem = $('<img id="theImg" class="img-thumbnail .img-responsive" width="100%" height="100%" style="margin-top:20px" src="./vault/part/' + imageId + '" />');
+                    newItem.appendTo(parentElement);
+                } else {
+                    var newItem = $('<span class="glyphicon glyphicon-picture"></span>');
+                    newItem.css("font-size", "160px");
+                    newItem.appendTo(parentElement);
+                }
+            }
+
+            var insertPartItem = function (partId, originalFileName, thumbnailId) {
+                var itemStr = '<div class="col-xs-3 col-lg-3">';
+                itemStr += '<a href="#colladaRenderDlg" data-toggle="modal" class="colladaImage" width="100%" height="75%" ';
+                itemStr += ' originalFileName="' + originalFileName.toString() + '" ';
+                itemStr += ' imageid="' + thumbnailId.toString() + '"';
+                itemStr += ' partid="' + partId.toString() + '">';
+                itemStr += '<img id="theImg" class="img-thumbnail .img-responsive" width="100%" height="100%" style="margin-top:20px" src="./vault/part/' + thumbnailId.toString() + '" />';
+                itemStr += '</a>';
+                itemStr += '</div>';
+                $(itemStr).prependTo($('#partList')[0]);
+            }
+        </script>
+        <script src="assets/js/jquery.knob.js"></script>
+
+        <!-- jQuery File Upload Dependencies -->
+        <script src="assets/js/jquery.ui.widget.js"></script>
+        <script src="assets/js/jquery.iframe-transport.js"></script>
+        <script src="assets/js/jquery.fileupload.js"></script>
+
+        <!-- Our main JS file -->
+        <script src="assets/js/PartUploadPanel.js"></script>
+        <script>
+            var uploadFileData;
+            var ModelUploader = function () { };
+            ModelUploader.prototype.onFileAdded = function (panel, fileData) {
+                // Do something
+                uploadFileData = fileData;
+                $('#partUploadInfoDlg').modal('show');
+                console.log('onFileAdded');
+            }
+            ModelUploader.prototype.onUploadFinished = function (jsonResponse) {
+                var warehouseItemId = jsonResponse.message._id;
+                console.log('warehouseItemId = ' + warehouseItemId);
+                console.log('onUploadFinished');
+                var name = $('#partUploadInfoDlg').find('#name')[0].value;
+                var des = $('#partUploadInfoDlg').find('#description')[0].value;
+                var tags = '[' + $('#partUploadInfoDlg').find('#tags')[0].value + ']';
+                var jsonData = { _id: warehouseItemId,
+                    originalFileName: jsonResponse.message.originalFileName,
+                    partId:jsonResponse.message.file,
+                    name: $('#partUploadInfoDlg').find('#name')[0].value,
+                    description: $('#partUploadInfoDlg').find('#description')[0].value,
+                    tags: $('#partUploadInfoDlg').find('#tags')[0].value
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/updateWarehouseItem",
+                    data: JSON.stringify({ warehouseInfo: jsonData }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log('updateWarehouseItem response = ' + data);
+                        if (data.success) {
+                            var img = $('#partUploadInfoDlg').find('#theImg')[0];
+                            var imgSrc = img.src;
+                            $.ajax({
+                                url: 'uploadPartThumbnail',
+                                type: 'POST',
+                                data: imgSrc,
+                                success: function (response) {
+                                    console.log('uploadPartThumbnail = ' + response);
+                                    $('#partUploadInfoDlg').modal('hide');
+                                    insertPartItem(response.message.partId, response.message.originalFileName, response.message.thumbnailId);
+                                },
+                                error: function (err) { console.log('uploadPartThumbnail Error = ' + err); },
+                                contentType: false,
+                                processData: false
+                            });
+                        } else {
+                            alert(data.messsage);
+                        }
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+
+            ModelUploader.prototype.onUploadfailed = function (panel, fileData) {
+                console.log('onUploadfailed');
+                $('#partUploadInfoDlg').modal('hide');
+            }
+
+            $('#partUploadInfoDlg').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var renderCanvas = modal.find('#renderCanvas')[0];
+                var file = uploadFileData.files[0];
+                var fileName = file.name;
+                var sz = file.size;
+                var dotPos = fileName.lastIndexOf('.');
+                var ext = '';
+                var name = fileName;
+                if (dotPos > 0) {
+                    name = fileName.substr(0, dotPos);
+                    ext = fileName.substr(dotPos + 1);
+                }
+                var nameInput = modal.find('#name')[0];
+                nameInput.value = (name);
+                modal.find('#description')[0].value = ('Description for ' + name);
+                $(renderCanvas).empty();
+                var captureImage = function () {
+                    if (modelViewer.partLoaded && modelViewer.hasRendered) {
+                        var imgData = modelViewer.takeScreenShot();
+                        var thumbnailDiv = modal.find('#thumbnail')[0];
+                        $(thumbnailDiv).empty();
+                        var newItem = $('<img id="theImg" class="img-thumbnail .img-responsive" width="100%" height="75%" src="' + imgData + '"/>');
+                        newItem.appendTo($(thumbnailDiv));
+                    }
+                }
+                var modelViewer = ColladaRender(renderCanvas, file, captureImage);
+                $('#camera').click(function (e) {
+                    captureImage();
+                });
+            });
+            var partUploadPanel = new PartUploadPanel('#upload ul', '#drop a', '#drop', '#upload', new ModelUploader());
+        </script>
+        <%include ./partials/partUploadInfoDlgScript%>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.js"></script>
+        <script src="assets/js/zip/zip.js"></script>
+        <script src="assets/js/zip/zip-ext.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.3.0/lodash.min.js"></script>
+        <script src="assets/js/threejs/loaders/ColladaLoader.js"></script>
+        <script src="assets/js/threejs/Detector.js"></script>
+        <script src="assets/js/threejs/three-orbit-controls.js"></script>
+        <script src="assets/js/threejs/three-stats.js"></script>
+        <script src="assets/js/threejs/libs/stats.min.js"></script>
+    </body>
+</html>
+

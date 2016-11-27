@@ -1,0 +1,56 @@
+<script>
+    $("#signUpForm").submit(function (event) {
+        var $form = $(this);
+        var username = $("#formUsernameId").val();
+        var email = $("#formEmailId").val();
+        var password = $("#formPasswordId").val();
+        var confirmpwd = $("#formConfirmPasswordId").val();
+        var hasUpper = password.match(/[A-Z]/);
+        var hasLower = password.match(/[a-z]/g);
+        var hasNumber = password.match(/[0-9]/g);
+        var pwdLongThan6 = (password.length > 6);
+
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        var isValidEmail = re.test(email);
+        var err = null;
+        if(username.length == 0) {
+            err = ("Invalid user name");
+        } else if (!isValidEmail) {
+            err = ("Valid Email Address and Password");
+        } else if (!hasUpper || !hasLower || !hasNumber || !pwdLongThan6) {
+            err = ("Password needs to have upper case, lower case and number and is longer than 6");
+        } else if (confirmpwd != password) {
+            err = ("Confirm password is not matched");
+        }
+        if (err) {
+            alert(err);
+            event.preventDefault();
+            return;
+        }
+
+        var urlStr = $form.attr('action');
+        var isLogin = (urlStr == 'login' || urlStr == '/login');
+        if (!isLogin)
+            event.preventDefault();
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'post',
+            data: $form.serialize(),
+            async: false,
+            success: function (data) {
+                if (data.success) {
+                    testing = true;
+                    $form.attr('action', 'login');
+                    $form.submit();
+                }
+                else if (!isLogin) {
+                    $("#signUpErrMsg").text(data.message);
+                    $("#signUpErrMsg").removeClass('hide');
+                }
+            },
+            error: function () {
+                alert('There has been an error, please alert us immediately');
+            }
+        });
+    })
+</script>

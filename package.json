@@ -1,15 +1,31 @@
 {
-  "name": "test_docker_web_app",
-  "version": "1.0.0",
-  "description": "Node.js on Docker",
-  "author": "First Last <first.last@example.com>",
+  "name": "node-authentication",
   "main": "server.js",
-  "scripts": {
-    "start": "nodemon server.js"
-  },
   "dependencies": {
-    "express": "^4.13.3",
-    "mongoose": "^4.6.8",
-    "nodemon": "^1.11.0"
+    "bcrypt-nodejs": "",
+    "bluebird": "",
+    "blueimp-md5": "",
+    "body-parser": "",
+    "compression": "",
+    "connect-busboy": "",
+    "connect-flash": "",
+    "cookie-parser": "",
+    "ejs": "",
+    "express": ">=4.11",
+    "express-session": "",
+    "file-stream-rotator": "0.0.6",
+    "fs-extra": ">=0.16.3",
+    "mongodb": "",
+    "mongoose": "",
+    "morgan": "",
+    "passport": "",
+    "passport-google-oauth": "",
+    "passport-local": "",
+    "path": "^0.12.7",
+    "serve-favicon": "",
+    "streamifier": ""
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5"
   }
 }

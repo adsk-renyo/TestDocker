@@ -1,0 +1,46 @@
+<script>
+    $("#createPortalForm").submit(function (event) {
+        var $form = $(this);
+        var name = $("#formNameId").val();
+        var fullName = $("#formFullNameId").val();
+        var err = null;
+        if(name.length == 0) {
+            err = ("Invalid portal name");
+        } else if (name.length > 32) {
+            err = ("portal name's length should be <= 32");
+        } else if (fullName.length == 0) {
+            err = ("Invalid portal full name");
+        } else if (fullName.length > 128) {
+            err = ("portal full name's length should be <= 128");
+        }
+        if (err) {
+            alert(err);
+            event.preventDefault();
+            return;
+        }
+
+        var urlStr = $form.attr('action');
+        var isRedirect = (urlStr == 'redirectCreatePortal' || urlStr == '/redirectCreatePortal');
+        if (!isRedirect)
+            event.preventDefault();
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'post',
+            data: $form.serialize(),
+            async: false,
+            success: function (data) {
+                if (data.success) {
+                    $form.attr('action', 'redirectCreatePortal');
+                    $form.submit();
+                }
+                else if (!isRedirect) {
+                    $("#portalSignUpErrMsg").text(data.message);
+                    $("#portalSignUpErrMsg").removeClass('hide');
+                }
+            },
+            error: function () {
+                alert('There has been an error, please alert us immediately');
+            }
+        });
+    })
+</script>

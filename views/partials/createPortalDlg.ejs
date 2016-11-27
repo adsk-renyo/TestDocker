@@ -1,0 +1,26 @@
+<div class="modal fade" id="createPortalDlg" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Create Your Portal</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger hide" id="portalSignUpErrMsg"></div>
+                <form action="/createPortal" method="post" id="createPortalForm">
+                    <div class="form-group">
+                        <label>Portal Name</label>
+                        <input type="text" class="form-control" name="name" id="formNameId">
+                    </div>
+                    <div class="form-group">
+                        <label>Portal Full Name</label>
+                        <input type="text" class="form-control" name="fullName" id="formFullNameId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-warning btn-lg">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

@@ -1,0 +1,7 @@
+<script>
+    $("#partUploadForm").submit(function (event) {
+        var $form = $(this);
+        partUploadPanel.submit(uploadFileData);
+        event.preventDefault();
+    });
+</script>

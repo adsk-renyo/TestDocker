@@ -1,9 +1,8 @@
 FROM node:argon
 
-RUN mkdir /usr/src/app
-WORKDIR /usr/src/app
-COPY package.json /usr/src/app
-COPY server.js /usr/src/app
+RUN mkdir /usr/src/web
+WORKDIR /usr/src/web
+COPY web /usr/src/web
 
 RUN npm install 
 EXPOSE 8080
